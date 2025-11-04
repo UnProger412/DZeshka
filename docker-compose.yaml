@@ -1,15 +1,12 @@
+version: '3'
 
-
-# в этом блоке мы описываем контейнеры, которые будут запускаться
 services:
-  #контейнер с Nginx
   nginx:
     build:
       context: ./nginx
       dockerfile: Dockerfile
     image: nginx
     container_name: webserver
-    # проброс портов
     ports:
       - "80:80"
     volumes:
@@ -17,17 +14,14 @@ services:
     networks:
       - app-network
 
-  #Контейнер с PHP-FPM, назовём его app
   app:
-    # Если нет секции build, то система будет искать образ в репозиториях
     build:
       context: ./fpm
       dockerfile: Dockerfile
-    image: php # имя будущего образа
-    container_name: app # имя контейнера после запуска
+    image: php 
+    container_name: app 
     volumes:
        - ./code:/data/mysite.local
-    # мы можем создать для контейнеров внутреннюю сеть
     networks:
       - app-network
     environment:
@@ -35,19 +29,11 @@ services:
       - REDIS_PORT={REDIS_PORT}
     depends_on:
       - redis
-    # command: 
-    #   - php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-    #   - php -r "if (hash_file('sha384', 'composer-setup.php') === 'c8b085408188070d5f52bcfe4ecfbee5f727afa458b2573b8eaaf77b3419b0bf2768dc67c86944da1544f06fa544fd47') { echo 'Installer verified'.PHP_EOL; } else { echo 'Installer corrupt'.PHP_EOL; unlink('composer-setup.php'); exit(1); }"
-    #   - php composer-setup.php
-    #   - php -r "unlink('composer-setup.php');"
-    #   - php composer.phar require predis/predis
-  
+
   redis: 
     image: redis
     container_name: redis
     command: redis-server --appendonly yes
-    # ports:
-    #   - "81:81"
     volumes:
       - redis_data:/data
     networks:
@@ -56,8 +42,6 @@ services:
   memcached:
     image: memcached
     hostname: memcached
-    # ports:
-    #   - "82:82"
     command:
       - --conn-limit=1024
       - --memory-limit=64
@@ -81,7 +65,6 @@ services:
     environment:
       - PMA_ARBITRARY=1
 
-#Docker Networks
 networks:
   app-network:
     driver: bridge
